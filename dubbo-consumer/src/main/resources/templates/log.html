@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+
+    <script type="text/javascript" src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/default/easyui.css"></link>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/icon.css"></link>
+</head>
+<body>
+<div id="Too" >
+    日志名称:<input id="name">
+    日期:<input id="starDate" class="easyui-datebox" required="true">--<input id="endDate" class="easyui-datebox" required="true">
+    <a href="javascript:serchLog()" class="easyui-linkbutton" iconCls="icon-search">搜索</a><br>
+    <a href="javascript:openDialog()" class="easyui-linkbutton" iconCls="icon-add">添加</a>
+    <a href="javaScript:updateDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">修改</a>
+    <a href="javaScript:deleteDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">删除</a>
+</div>
+<table ToolBar="#Too" id="data" title="信息" class="easyui-datagrid" pagination="true" pageList="[1,5,10]" url="../user/queryLog" fitColumns="true"  rownumbers="true" >
+    <thead>
+    <tr>
+        <th data-options="field:'cb',checkbox:'true'"></th>
+        <th data-options="field:'id',width:50">主键id</th>
+        <th data-options="field:'logname',width:100">日志名称</th>
+        <th data-options="field:'logip',width:100">ip地址</th>
+        <th data-options="field:'logis',width:100">是否</th>
+        <th data-options="field:'requerpath',width:100">请求路径</th>
+        <th data-options="field:'parame',width:100">11</th>
+        <th data-options="field:'userId',width:100">用户id</th>
+        <th data-options="field:'returningValue',width:100">返回值</th>
+        <th data-options="field:'logtime',width:100">日期</th>
+        <th data-options="field:'bt',width:100,formatter:setButton">操作</th>
+    </tr>
+    </thead>
+</table>
+
+</body>
+<script>
+    setButton=function(value,rows,index){
+        return "<input type='button' value='删除' onclick=delLog("+"'"+rows.id+"'"+")>"
+    }
+</script>
+</html>

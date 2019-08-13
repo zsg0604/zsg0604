@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+
+    <script type="text/javascript" src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/default/easyui.css"></link>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/icon.css"></link>
+</head>
+<body>
+
+<div class="easyui-dialog" data-options="title:'登录',iconCls:'icon-tip',width:400,height:250,buttons:'#buttons'">
+    <form id="loginForm" method="post">
+        <span id="msg1"></span>
+
+        <table>
+            <tr>
+                <td>用户名</td>
+                <td>
+                    <input class="easyui-textbox" name="name" data-options="iconCls:'icon-man',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>密码</td>
+                <td>
+                    <input class="easyui-passwordbox" name="password" data-options="iconCls:'icon-lock',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td><br><br>验证码</td>
+                <td>
+                    <img id="imgCode" src="../user/gainCode" onclick="refreshCode()"><br>
+                    <input class="easyui-textbox" name="code" data-options="required:true">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="buttons">
+    <a href="javascript:toRegister()" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true">注册</a>
+    <a href="javascript:login()" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true">登录</a>
+</div>
+</body>
+<script type="text/javascript">
+    function refreshCode(){
+        $("#imgCode").attr("src","../user/gainCode?t="+new Date().getTime());
+    }
+    function login(){
+        $("#loginForm").form("submit",{
+            url:"../user/login",
+            success:function(data){
+
+                if (data=="codeError") {
+                    $.messager.alert("提示",data,"info");
+                    $("#msg1").html("<font color='red'>验证码错误</font>")
+                }
+                if (data=="nameError") {
+                    $.messager.alert("提示",data,"info");
+                    $("#msg1").html("<font color='red'>账户不存在</font>")
+                }
+                if(data=="pwError"){
+                    $.messager.alert("提示",data,"info");
+                    $("#msg1").html("<font color='red'>密码错误</font>")
+                }if (data=="0") {
+                    $.messager.alert("提示",'账号已锁定,5分钟后再试',"info");
+                    //$("#msg1").html("<font color='red'>"+data+"</font>")
+                }
+                if(data=="success"){
+                    alert("成功")
+                    location.href="../page/tree";
+                }
+            }
+        })
+    }
+
+
+</script>
+</html>

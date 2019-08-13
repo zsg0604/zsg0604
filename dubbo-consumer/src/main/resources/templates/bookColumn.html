@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="../Highcharts/code/highcharts.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+
+<div id="container" style="min-width:400px;height:400px"></div>
+</body>
+<script>
+    $(function(){
+        $.ajax({
+            url:"../user/queryBookLine",
+            type:"post",
+            dataType:"json",
+            success:function (data) {
+                var chart = Highcharts.chart('container', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: '书籍信息统计'
+                    },
+                    subtitle: {
+                        text: '数据截止 今天，来源: 数据库'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        labels: {
+                            rotation: -45  // 设置轴标签旋转角度
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '数量(套)'
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        pointFormat: '人口总量: <b>{point.y:.1f} 百万</b>'
+                    },
+                    series: [{
+                        name: '总人口',
+                        data: data,
+                        dataLabels: {
+                            enabled: true,
+                            rotation: -90,
+                            color: '#FFFFFF',
+                            align: 'right',
+                            format: '{point.y:.1f}', // :.1f 为保留 1 位小数
+                            y: 10
+                        }
+                    }]
+                });
+            },error:function () {
+                alert("查询失败")
+            }
+        })
+    })
+</script>
+</html>

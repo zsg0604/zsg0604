@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+
+    <script type="text/javascript" src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/default/easyui.css"></link>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/icon.css"></link>
+</head>
+<body>
+<div id="Too" >
+    <a href="javascript:openDialog()" class="easyui-linkbutton" iconCls="icon-add">添加</a>
+    <a href="javaScript:updateDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">修改</a>
+    <a href="javaScript:deleteDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">删除</a><br>
+    <input type="button" value="导出Excel" onclick="exportExcel()" class="easyui-linkbutton" data-options="iconCls:'icon-add'">
+
+    <form action="../user/importExcel" method="post" enctype="multipart/form-data" >
+        <input type="file" name="file"/>
+        <input type="submit" value="导入excel"/>
+    </form>
+</div>
+<div id="myDialog" class="easyui-dialog" style="width:450px;height:500px;" buttons="#AddOk" closed="true">
+    <ul id="role" class="easyui-tree">
+    </ul>
+</div>
+<div id="AddOk">
+    <a href="javascript:saveUser()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+    <a href="javascript:closeDialog()" class="easyui-linkbutton" iconCls="icon-cancel">取消</a>
+</div>
+
+<div id="userDialog" class="easyui-dialog" style="width:550px;height:400px;" buttons="#buttons" closed="true">
+    <form id="regForm" method="post">
+        <input type="" name="id">
+        <table>
+            <tr>
+                <td>用户名</td>
+                <td>
+                    <input class="easyui-textbox" name="name" data-options="iconCls:'icon-man',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>真实姓名</td>
+                <td>
+                    <input class="easyui-textbox" name="realname" data-options="iconCls:'icon-man',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>密码</td>
+                <td>
+                    <input class="easyui-passwordbox" id="pwd" name="password" data-options="iconCls:'icon-lock',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>确定密码</td>
+                <td>
+                    <input validType="equals['#pwd']" class="easyui-passwordbox" id="pwd2" data-options="iconCls:'icon-lock',required:true">
+                </td>
+            </tr>
+        </table>
+    </form>
+
+
+
+
+</div>
+<div id="buttons">
+    <a href="javascript:saveUserDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true">保存</a>
+    <a href="javascript:closeUserDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true">取消</a>
+</div>
+
+
+    <table id="data" ToolBar="#Too"></table>
+
+
+</body>
+<script type="text/javascript" >
+    $(function(){
+
+        queryData();
+    });
+
+    //查询
+    function queryData(){
+
+        $('#data').datagrid({
+            url:'../user/queryUser',
+            fitColumns:true,
+            columns: [
+                [
+                    {field: 'checkbox', checkbox: true},  //开启复选框
+                    {field: 'id', title: '序号', width: 300},      //  列    field   代表是 后台  传过来的值
+                    {field: 'name', title: '用户名', width: 300},
+                    {field: 'password', title: '密码', width: 300},
+                    {field: 'realname', title: '真实姓名', width: 300},
+                    {field: 'xxx', title: '操作', width: 300,
+                        formatter:function(value,row,index){
+
+                            return "&nbsp<input type='button' value='角色绑定'  onclick='selectRole("+row.id+")'>";
+                        }}
+                ]
+            ],
+            pagination:true,
+            pageList:[2,5,10],
+            rownumbers:true,
+            //fit:true,
+            fitColumns:true
+        });
+
+    }
+
+    var uid;
+    selectRole=function(id){
+        uid=id;
+        $("#myDialog").dialog('open').dialog('setTitle','用户角色修改');
+        $("#role").tree({
+            url:"../user/getRole?id="+id,
+            method:"post",
+            checkbox: true,
+            cascadeCheck:false,
+        })
+    }
+
+    saveUser=function(){
+        var nodes = $('#role').tree('getChecked');
+        var  urids= '';
+        for(var i=0; i<nodes.length; i++){
+            if (urids != '') urids += ',';
+            urids += nodes[i].id;
+        }
+        $.ajax({
+            url:"../user/updateRole",
+            type:"post",
+            data:{urids:urids,uid:uid},
+            success:function(data){
+                $("#myDialog").dialog('close');
+                $("#data").datagrid('reload');
+            }
+
+        })
+    }
+
+
+    exportExcel=function(){
+        location.href="../user/exportExcel";
+    }
+
+
+//---------------------------------------------------------------------------------------------------------------------------
+    openDialog=function(){
+        $("#myDialog").dialog('open').dialog('setTitle','新增信息');
+    }
+    saveBook=function(){
+        $("#addForm").form('submit',{
+            url:"../book/add",
+            method:"post",
+            onSubmit:function(){
+                return  $(this).form('validate');
+
+            },
+            success: function(){
+                alert("操作成功！！");
+                $("#myDialog").dialog('close');
+                $("#data").datagrid('reload');
+                $("#showImg").attr("src","");
+                $("#addForm").form('clear');
+            }
+        })
+    }
+
+    updateDialog=function(){
+        var rows=$("#data").datagrid('getSelections');
+        if (1!==rows.length) {
+            $.messager.alert('警告','请选择一条需要修改的数据','warning');
+            return ;
+        }
+        var r = rows[0];
+        //r.sdate=new Date(r.sdate).toLocaleDateString().replace(/\//g,"-");
+        $("#myDialog").dialog('open').dialog('setTitle','信息修改');
+
+        $("#addForm").form('load',r);
+        //$("#showImg").attr("src","./upload/"+r.img);
+        url:"../book/add";
+        $("#data").datagrid('reload');
+
+    }
+
+
+    deleteDialog=function(){
+        var rows=$("#data").datagrid('getSelections');
+        if (rows.length==0) {
+            $.messager.alert('警告','请选择需要删除的数据','warning');
+            return ;
+        }
+        var temp="";
+        for (var i = 0; i < rows.length; i++) {
+            temp+=","+rows[i].id;
+        }
+        var ids=temp.substr(1);
+        if (confirm("你确定要删除这"+rows.length+"条数据吗")) {
+            $.ajax({
+                url:"../book/del",
+                type:"post",
+                data:{ids:ids},
+                success:function(){
+                    alert("已删除")
+                    $("#data").datagrid('reload');
+                }
+            })
+        }else {
+            alert("不删就对咯,一般人我不告诉他");
+        }
+    }
+</script>
+</html>

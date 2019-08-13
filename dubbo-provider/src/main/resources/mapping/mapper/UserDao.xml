@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhang.dao.UserDao" >
+
+    <!--User queryUserName(String name)-->
+    <select id="queryUserName" parameterType="String" resultType="User">
+        select * from user where name=#{name}
+    </select>
+
+    <!--List<Menu> queryTreeAll(Integer id)-->
+    <select id="queryTreeAll" parameterType="int" resultType="Menu">
+        SELECT m.* FROM user u,userrole ur,role r,rolemenu rm,menu m where u.id=ur.uid AND ur.rid=r.id AND r.id =rm.rid AND rm.mid=m.id AND u.id=#{id} GROUP BY m.name
+    </select>
+
+    <!--Integer queryUserCount()-->
+    <select id="queryUserCount" resultType="int">
+        select count(*) from user
+    </select>
+
+    <!--List<User> queryListUser(Map<String, Object> map)-->
+    <select id="queryListUser" parameterType="Map" resultType="User">
+        select * from user limit #{start},#{end}
+    </select>
+
+    <!--List<Integer> queryRoleById(Integer id)-->
+    <select id="queryRoleById" parameterType="int" resultType="int">
+        select rid from userrole where uid=#{id}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+
+    <script type="text/javascript" src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/default/easyui.css"></link>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/icon.css"></link>
+
+
+    <script type="text/javascript" src="../js/uploadify/jquery.uploadify.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/uploadify/uploadify.css" />
+
+</head>
+<body>
+
+    <div id="Too">
+        <a  href="javaScript:openDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-add'">添加</a>
+        <a  href="javaScript:updateDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">修改</a>
+        <a  href="javaScript:deleteDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">删除</a>
+    </div>
+
+
+    <div id="myDialog" class="easyui-dialog" style="width:550px;height:400px;" buttons="#AddOk" closed="true">
+    <form id="addForm" method="post">
+        <input type="hidden" name="id" >
+        <table>
+            <tr>
+                <td>书名</td>
+                <td><input type="text" name="name" class="easyui-validatebox" required="true"></td>
+            </tr>
+
+            <tr>
+                <td>价格</td>
+                <td>
+                    <input name="price" class="easyui-numberbox" data-options="min:0,precision:2" required="true">
+                </td>
+            </tr>
+
+            <tr>
+                <td>描述</td>
+                <td><textarea name="info"></textarea></td>
+            </tr>
+
+            <tr>
+                <td>状态</td>
+                <td>
+                    <input type="radio" name="status" value="1">上架
+                    <input type="radio" name="status" value="2">下架
+                </td>
+            </tr>
+        </table>
+    </form>
+    </div>
+    <div id="AddOk">
+        <a href="javascript:saveBook()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+        <a href="javascript:closeDialog()" class="easyui-linkbutton" iconCls="icon-cancel">取消</a>
+    </div>
+<!--datagrid 开始  -->
+<table id="data" ToolBar="#Too"></table>
+<!--datagrid 结束 -->
+
+</body>
+<script type="text/javascript" >
+    $(function(){
+
+        queryData();
+    });
+
+    //查询
+    function queryData(){
+
+        $('#data').datagrid({
+            url:'../book/query',
+            fitColumns:true,
+            columns: [
+                [
+                    {field: 'checkbox', checkbox: true},  //开启复选框
+                    {field: 'id', title: '序号', width: 300},      //  列    field   代表是 后台  传过来的值
+                    {field: 'name', title: '名称', width: 300},
+
+                    {field: 'price', title: '价格', width: 300},
+
+                    {field: 'info', title: '描述', width: 300},
+                    {field: 'status', title: '状态', width: 300},
+                    {field: 'bdate', title: '时间', width: 300},
+                    {field: 'xxx', title: '操作', width: 300,
+                        formatter:function(value,row,index){
+                            return "<a href='JavaScript:genjin()'>操作</a>"
+                        }}
+                ]
+            ],
+            pagination:true,
+            pageList:[2,5,10],
+            rownumbers:true,
+            //fit:true,
+            fitColumns:true
+        });
+
+    }
+
+
+
+
+
+
+    openDialog=function(){
+        $("#myDialog").dialog('open').dialog('setTitle','新增信息');
+    }
+    saveBook=function(){
+        $("#addForm").form('submit',{
+            url:"../book/add",
+            method:"post",
+            onSubmit:function(){
+                return  $(this).form('validate');
+
+            },
+            success: function(){
+                alert("操作成功！！");
+                $("#myDialog").dialog('close');
+                $("#data").datagrid('reload');
+                $("#showImg").attr("src","");
+                $("#addForm").form('clear');
+            }
+        })
+    }
+
+    updateDialog=function(){
+        var rows=$("#data").datagrid('getSelections');
+        if (1!==rows.length) {
+            $.messager.alert('警告','请选择一条需要修改的数据','warning');
+            return ;
+        }
+        var r = rows[0];
+        //r.sdate=new Date(r.sdate).toLocaleDateString().replace(/\//g,"-");
+        $("#myDialog").dialog('open').dialog('setTitle','信息修改');
+
+        $("#addForm").form('load',r);
+        //$("#showImg").attr("src","./upload/"+r.img);
+        url:"../book/add";
+        $("#data").datagrid('reload');
+
+    }
+
+
+    deleteDialog=function(){
+        var rows=$("#data").datagrid('getSelections');
+        if (rows.length==0) {
+            $.messager.alert('警告','请选择需要删除的数据','warning');
+            return ;
+        }
+        var temp="";
+        for (var i = 0; i < rows.length; i++) {
+            temp+=","+rows[i].id;
+        }
+        var ids=temp.substr(1);
+        if (confirm("你确定要删除这"+rows.length+"条数据吗")) {
+            $.ajax({
+                url:"../book/del",
+                type:"post",
+                data:{ids:ids},
+                success:function(){
+                    alert("已删除")
+                    $("#data").datagrid('reload');
+                }
+            })
+        }else {
+            alert("不删就对咯,一般人我不告诉他");
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+
+    <script type="text/javascript" src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/default/easyui.css"></link>
+    <link rel="stylesheet" href="../js/easyui1.5/themes/icon.css"></link>
+
+</head>
+<body>
+
+<div id="Too" >
+    <a href="javascript:openDialog()" class="easyui-linkbutton" iconCls="icon-add">添加</a>
+    <a href="javaScript:updateDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">修改</a>
+    <a href="javaScript:deleteDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">删除</a>
+</div>
+<div id="myDialog" class="easyui-dialog" style="width:450px;height:500px;" buttons="#AddOk" closed="true">
+    <ul id="role" class="easyui-tree">
+    </ul>
+</div>
+<div id="AddOk">
+    <a href="javascript:saveRole()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+    <a href="javascript:closeDialog()" class="easyui-linkbutton" iconCls="icon-cancel">取消</a>
+</div>
+
+<div id="userDialog" class="easyui-dialog" style="width:550px;height:400px;" buttons="#buttons" closed="true">
+    <form id="regForm" method="post">
+        <input type="" name="id">
+        <table>
+            <tr>
+                <td>用户名</td>
+                <td>
+                    <input class="easyui-textbox" name="name" data-options="iconCls:'icon-man',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>真实姓名</td>
+                <td>
+                    <input class="easyui-textbox" name="realname" data-options="iconCls:'icon-man',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>密码</td>
+                <td>
+                    <input class="easyui-passwordbox" id="pwd" name="password" data-options="iconCls:'icon-lock',required:true">
+                </td>
+            </tr>
+            <tr>
+                <td>确定密码</td>
+                <td>
+                    <input validType="equals['#pwd']" class="easyui-passwordbox" id="pwd2" data-options="iconCls:'icon-lock',required:true">
+                </td>
+            </tr>
+        </table>
+    </form>
+
+
+
+
+</div>
+<div id="buttons">
+    <a href="javascript:saveUserDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-ok',plain:true">保存</a>
+    <a href="javascript:closeUserDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-redo',plain:true">取消</a>
+</div>
+
+
+<table id="data" ToolBar="#Too"></table>
+
+</body>
+<script type="text/javascript">
+    $(function(){
+
+        queryData();
+    });
+
+    //查询
+    function queryData(){
+
+        $('#data').datagrid({
+            url:'../user/queryRole',
+            fitColumns:true,
+            columns: [
+                [
+                    {field: 'checkbox', checkbox: true},  //开启复选框
+                    {field: 'rolename', title: '序号', width: 300},      //  列    field   代表是 后台  传过来的值
+                    {field: 'text', title: '说明', width: 300},
+
+                    {field: 'description', title: '描述', width: 300},
+                    {field: 'xxx', title: '操作', width: 300,
+                        formatter:function(value,row,index){
+
+                            return "&nbsp<input type='button' value='角色绑定'  onclick='selectMenu("+row.id+")'>";
+                        }}
+                ]
+            ],
+            pagination:true,
+            pageList:[2,5,10],
+            rownumbers:true,
+            //fit:true,
+            fitColumns:true
+        });
+
+    }
+    var rid;
+    selectMenu=function (id) {
+        alert(id);
+        rid=id;
+        $("#myDialog").dialog('open').dialog('setTitle','角色授权');
+        $("#role").tree({
+            url:"../user/getMenu?id="+id,
+            method:"post",
+            checkbox: true,
+            cascadeCheck:false,
+        })
+    }
+    saveRole=function(){
+        var mids=getChecked();
+        var roleId=rid;
+        $.ajax({
+            url:"../user/updateMenu",
+            type:"post",
+            data:{mids:mids,roleId:roleId},
+            success:function(data){
+                if (data==0) {
+                    $("#myDialog").dialog('close');
+                }else{
+                    alert("失败");
+                }
+
+            }
+        })
+
+    }
+
+    getChecked=function(){
+        var nodes = $('#role').tree('getChecked');
+        var s = '';
+        for(var i=0; i<nodes.length; i++){
+            if (s != '') s += ',';
+            s += nodes[i].id;
+        }
+
+        return s;
+
+    }
+</script>
+</html>
