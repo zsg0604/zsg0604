@@ -348,7 +348,6 @@ public class UserController {
     @RequestMapping("toColumn")
     public String toColumn(){
         System.out.println(1223);
-
         return "bookColumn";
     }
 
